@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Test</title>
+</head>
+<body>
+    <h1>Static HTML Test</h1>
+    <button id="btn" style="padding: 20px; font-size: 20px; background: blue; color: white;">
+        Click Me
+    </button>
+    <script>
+        document.getElementById('btn').addEventListener('click', function() {
+            alert('Static JS Works!');
+            this.innerText = "Clicked!";
+            this.style.background = "green";
+        });
+    </script>
+</body>
+</html>
