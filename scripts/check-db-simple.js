@@ -3,13 +3,8 @@ const { PrismaClient } = require('@prisma/client');
 
 // Hardcoding the connection string for verification purposes
 // We know the file is at prisma/dev.db
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: 'file:../prisma/dev.db',
-    },
-  },
-});
+// Use default env
+const prisma = new PrismaClient()
 
 async function main() {
   try {

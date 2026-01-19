@@ -8,7 +8,7 @@ console.log('Expectation: URL should resolve to prisma/dev.db relative to schema
 // But here we are running a script.
 // If we use dotenv, we should set it to what we just changed the file to.
 
-process.env.DATABASE_URL = "file:./dev.db";
+// process.env.DATABASE_URL = "file:./dev.db";
 
 const prisma = new PrismaClient();
 
