@@ -1,0 +1,17 @@
+Connecting...
+ERROR: 
+Invalid `prisma.user.upsert()` invocation in
+c:\Users\Stanloky\Desktop\New folder (2)\WOG-claude-church-website-dashboard-011CUphJuY86ZeJbWPiKTXBN\scripts\simple-seed.js:20:36
+
+  17 log('Connecting...');
+  18 
+  19 // Create debug user
+→ 20 const user = await prisma.user.upsert(
+error: Error validating datasource `db`: the URL must start with the protocol `file:`.
+  -->  schema.prisma:9
+   | 
+ 8 |   provider = "sqlite"
+ 9 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1

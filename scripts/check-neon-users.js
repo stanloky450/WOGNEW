@@ -1,27 +1,25 @@
-
 const { PrismaClient } = require('@prisma/client');
+const fs = require('fs');
+const path = require('path');
 const prisma = new PrismaClient();
+const logPath = path.resolve(__dirname, 'check_result.txt');
+
+function log(msg) {
+    console.log(msg);
+    fs.appendFileSync(logPath, msg + '\n');
+}
 
 async function main() {
-  console.log('--- CHECKING NEON USERS ---');
   try {
+    fs.writeFileSync(logPath, '--- CHECK START ---\n');
+    log('Connecting...');
     const users = await prisma.user.findMany();
-    console.log(`Found ${users.length} users.`);
-    users.forEach(u => {
-        console.log(`- ID: ${u.id}, Email: ${u.email}, Role: ${u.role}`);
-    });
-    
-    // Also try to find the debug user specifically if logic depends on it
-    const debugUser = await prisma.user.findFirst({
-        where: { email: 'debug@test.com' }
-    });
-    console.log('Debug user found:', debugUser ? 'YES' : 'NO');
-    
+    log(`Found ${users.length} users.`);
+    users.forEach(u => log(`- ID: ${u.id}, Email: ${u.email}`));
   } catch (e) {
-    console.error('Error connecting/querying:', e);
+    log('ERROR: ' + e.message);
   } finally {
     await prisma.$disconnect();
   }
 }
-
 main();

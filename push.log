@@ -1,0 +1,24 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "neondb", schema "public" at "ep-restless-lake-ahetnrw5-pooler.c-3.us-east-1.aws.neon.tech"
+
+Your database is now in sync with your Prisma schema. Done in 23.05s
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[GEPERM: operation not permitted, rename 'C:\Users\Stanloky\Desktop\New folder 
+(2)\WOG-claude-church-website-dashboard-011CUphJuY86ZeJbWPiKTXBN\node_modules\.p
+risma\client\query_engine-windows.dll.node.tmp18880' -> 'C:\Users\Stanloky\Deskt
+op\New folder (2)\WOG-claude-church-website-dashboard-011CUphJuY86ZeJbWPiKTXBN\n
+ode_modules\.prisma\client\query_engine-windows.dll.node'
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.18.0 -> 7.2.0                       │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
