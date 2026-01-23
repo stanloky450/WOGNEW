@@ -9,9 +9,13 @@ import Footer from "@/components/Footer";
 import VideoModal from "@/components/video-modal";
 
 const monthVideos = {
+	Year: {
+		title: "2026 PROPHETIC DECLARATION",
+		youtubeUrl: "https://www.youtube.com/embed/vBo5YOEAOFk?si=MmseM2wCEtXD4W6L",
+	},
 	JANUARY: {
 		title: "JANUARY PROPHETIC DECLARATION",
-		youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+		youtubeUrl: "https://www.youtube.com/embed/vBo5YOEAOFk?si=MmseM2wCEtXD4W6L",
 	},
 	FEBRUARY: {
 		title: "FEBRUARY PROPHETIC DECLARATION",
@@ -80,6 +84,7 @@ export default function Home() {
 	}, []);
 
 	const months = [
+		"Year",
 		"JANUARY",
 		"FEBRUARY",
 		"MARCH",

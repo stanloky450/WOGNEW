@@ -4,7 +4,8 @@ const { hash } = require('bcryptjs')
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: 'file:./prisma/dev.db',
+      url: 'postgresql://neondb_owner:npg_Zwft1SOLCg2B@ep-restless-lake-ahetnrw5-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+      // url: 'file:./prisma/dev.db',
     },
   },
 })

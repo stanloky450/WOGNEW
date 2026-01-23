@@ -1,9 +1,18 @@
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcryptjs"
 
-const prisma = new PrismaClient()
+const neonUrl = 'postgresql://neondb_owner:npg_Zwft1SOLCg2B@ep-restless-lake-ahetnrw5-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: neonUrl,
+    },
+  },
+})
 
 async function main() {
+  console.log('--- Starting Explicit Seed (Neon) ---')
   // Create admin user
   const password = await hash("password123", 12)
 
@@ -21,7 +30,7 @@ async function main() {
   console.log("Super Admin created: superadmin@wgministries.com")
 
   // 2. News Admin
-  const newsAdmin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "news@wgministries.com" },
     update: { role: "NEWS_ADMIN", password: password },
     create: {
@@ -34,7 +43,7 @@ async function main() {
   console.log("News Admin created: news@wgministries.com")
 
   // 3. Events Admin
-  const eventAdmin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "events@wgministries.com" },
     update: { role: "EVENT_ADMIN", password: password },
     create: {
@@ -47,7 +56,7 @@ async function main() {
   console.log("Event Admin created: events@wgministries.com")
 
   // 4. Post Admin
-  const postAdmin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "posts@wgministries.com" },
     update: { role: "POST_ADMIN", password: password },
     create: {
@@ -72,7 +81,107 @@ async function main() {
   })
   console.log("Legacy Admin created: admin@wgministries.com")
 
-  console.log("All passwords are: password123")
+  // --- Seed Content ---
+  console.log('--- Seeding Content ---')
+  const author = superAdmin; // Use superAdmin as the author for seed content
+
+  // Seed Posts
+  console.log('Seeding Posts...')
+  const postsData = [
+    {
+      title: 'Welcome to Our New Website',
+      content: 'We are excited to launch our new digital platform to better serve our community.',
+      excerpt: 'Big announcements coming soon!',
+      published: true,
+      publishedAt: new Date(),
+      authorId: author.id
+    },
+    {
+      title: 'Sunday Service Schedule',
+      content: 'Join us every Sunday at 9 AM and 11 AM for our worship services.',
+      excerpt: 'Sunday Service times.',
+      published: true,
+      publishedAt: new Date(),
+      authorId: author.id
+    },
+    {
+      title: 'Weekly Service Schedule',
+      content: 'Join us every Sunday at 9 AM and 11 AM for our worship services.',
+      excerpt: 'Wednesday Service times.',
+      published: true,
+      publishedAt: new Date(),
+      authorId: author.id
+    }
+  ]
+
+  for (const post of postsData) {
+     // Check if post with same title exists to avoid duplicates
+     const existingValue = await prisma.post.findFirst({ where: { title: post.title }});
+     if (!existingValue) {
+        await prisma.post.create({ data: post });
+        console.log(`Created post: ${post.title}`);
+     }
+  }
+
+  // Seed News
+  console.log('Seeding News...')
+  const newsData = [
+    {
+      title: 'Community Outreach Program',
+      content: 'Our monthly outreach program will take place this Saturday downtown.',
+      excerpt: 'Helping our neighbors.',
+      published: true,
+      publishedAt: new Date(),
+      authorId: author.id
+    },
+    {
+      title: 'Youth Ministry Update',
+      content: 'The youth ministry is planning a summer camp retreat. Registration opens next week.',
+      excerpt: 'Summer Camp 2026',
+      published: true,
+      publishedAt: new Date(),
+      authorId: author.id
+    }
+  ]
+  
+  for (const news of newsData) {
+     const existingValue = await prisma.news.findFirst({ where: { title: news.title }});
+     if (!existingValue) {
+        await prisma.news.create({ data: news });
+        console.log(`Created news: ${news.title}`);
+     }
+  }
+
+  // Seed Events
+  console.log('Seeding Events...')
+  const eventsData = [
+    {
+      title: 'Worship Night',
+      description: 'An evening of song and prayer.',
+      date: new Date('2026-02-15T18:00:00Z'),
+      location: 'Main Sanctuary',
+      published: true,
+      authorId: author.id
+    },
+    {
+      title: 'Annual Picnic',
+      description: 'Food, games, and fun for the whole family.',
+      date: new Date('2026-05-20T12:00:00Z'),
+      location: 'City Park',
+      published: true,
+      authorId: author.id
+    }
+  ]
+  
+  for (const event of eventsData) {
+    const existingValue = await prisma.event.findFirst({ where: { title: event.title }});
+    if (!existingValue) {
+       await prisma.event.create({ data: event });
+       console.log(`Created event: ${event.title}`);
+    }
+  }
+
+  console.log('--- Seeding Completed ---')
 }
 
 main()
