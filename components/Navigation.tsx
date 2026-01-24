@@ -13,9 +13,15 @@ export default function Navigation() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
 					<Link href="/" className="flex items-center space-x-2">
-						<span className="text-2xl font-bold text-primary">WOG</span>
+					<img
+					src="/images/WOGLOGO.png"
+					alt="Logo"
+					height={30}
+					width={40}
+					/>
+						{/* <span className="text-2xl font-bold text-primary">WOG</span> */}
 						<span className="text-sm font-semibold text-gray-700 hidden sm:block">
-							Word of Grace
+							Word of Grace Ministries
 						</span>
 					</Link>
 
@@ -57,9 +63,9 @@ export default function Navigation() {
 						<Link href="/give">
 							<Button>GIVE </Button>
 						</Link>
-						<Link href="/dashboard">
+						{/* <Link href="/dashboard">
 							<Button variant="outline">Dashboard</Button>
-						</Link>
+						</Link> */}
 					</div>
 
 					{/* Mobile menu button */}

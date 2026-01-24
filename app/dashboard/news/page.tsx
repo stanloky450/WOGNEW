@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ImageUpload from "@/components/ui/image-upload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Calendar, User, Clock, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface News {
 	id: string;
@@ -21,7 +22,12 @@ interface News {
 	coverImage: string | null;
 	published: boolean;
 	createdAt: string;
-	author: { name: string | null };
+    updatedAt: string;
+    publishedAt: string | null;
+	author: { 
+        name: string | null;
+        email: string;
+    };
 }
 
 export default function NewsPage() {
@@ -94,7 +100,6 @@ export default function NewsPage() {
 			setShowForm(false);
 			setIsEditing(false);
 			setEditingId(null);
-			// fetchEvents() // calling fetchEvents? Note: the function is fetchNews. Fixing to fetchNews()
 			fetchNews();
 		} catch (error) {
 			console.error("Error saving news:", error);
@@ -112,6 +117,7 @@ export default function NewsPage() {
 		setEditingId(item.id);
 		setIsEditing(true);
 		setShowForm(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
 	const handleDelete = async (id: string) => {
@@ -124,11 +130,29 @@ export default function NewsPage() {
 		}
 	};
 
+	const cancelEdit = () => {
+		setIsEditing(false);
+		setEditingId(null);
+		setFormData({
+			title: "",
+			content: "",
+			excerpt: "",
+			coverImage: "",
+			published: false,
+		});
+		setShowForm(false);
+	};
+
 	return (
-		<div>
-			<div className="flex justify-between items-center mb-8">
-				<h1 className="text-3xl font-bold text-gray-900">News Management</h1>
-				<Button onClick={() => setShowForm(!showForm)}>
+		<div className="container mx-auto py-6 space-y-8">
+			<div className="flex justify-between items-center">
+				<h1 className="text-4xl font-bold text-gray-900 tracking-tight">News Management</h1>
+				<Button onClick={() => {
+                        if (showForm) cancelEdit();
+                        else setShowForm(true);
+                    }}
+                    className="shadow-md"
+                >
 					<Plus className="mr-2" size={18} />
 					{showForm ? "Cancel" : "New News"}
 				</Button>
@@ -140,33 +164,69 @@ export default function NewsPage() {
 					animate={{ opacity: 1, y: 0 }}
 					className="mb-8"
 				>
-					<Card>
+					<Card className="border-t-4 border-t-primary shadow-lg">
 						<CardHeader>
-							<CardTitle>{isEditing ? "Edit News" : "Create News"}</CardTitle>
+							<CardTitle className="text-2xl">{isEditing ? "Edit News" : "Create News"}</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<form onSubmit={handleSubmit} className="space-y-4">
-								<div>
-									<Label htmlFor="title">Title</Label>
-									<Input
-										id="title"
-										value={formData.title}
-										onChange={(e) =>
-											setFormData({ ...formData, title: e.target.value })
-										}
-										required
-									/>
-								</div>
-								<div>
-									<Label htmlFor="excerpt">Excerpt</Label>
-									<Input
-										id="excerpt"
-										value={formData.excerpt}
-										onChange={(e) =>
-											setFormData({ ...formData, excerpt: e.target.value })
-										}
-									/>
-								</div>
+							<form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="title">Title</Label>
+                                            <Input
+                                                id="title"
+                                                value={formData.title}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, title: e.target.value })
+                                                }
+                                                required
+                                                className="mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="excerpt">Excerpt</Label>
+                                            <Input
+                                                id="excerpt"
+                                                value={formData.excerpt}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, excerpt: e.target.value })
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+                                         <div className="flex items-center space-x-2 pt-4">
+                                            <input
+                                                type="checkbox"
+                                                id="published"
+                                                checked={formData.published}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, published: e.target.checked })
+                                                }
+                                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                            />
+                                            <Label htmlFor="published" className="cursor-pointer font-medium">
+                                                Publish immediately
+                                            </Label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label>Cover Image</Label>
+                                        <div className="mt-1">
+                                            <ImageUpload
+                                                value={formData.coverImage ? [formData.coverImage] : []}
+                                                disabled={loading}
+                                                onChange={(url) =>
+                                                    setFormData({ ...formData, coverImage: url })
+                                                }
+                                                onRemove={() =>
+                                                    setFormData({ ...formData, coverImage: "" })
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+								
 								<div>
 									<Label htmlFor="content">Content</Label>
 									<Textarea
@@ -175,40 +235,26 @@ export default function NewsPage() {
 										onChange={(e) =>
 											setFormData({ ...formData, content: e.target.value })
 										}
-										rows={8}
+										rows={10}
 										required
+                                        className="mt-1 font-mono text-sm"
 									/>
 								</div>
-								<div>
-									<Label>Cover Image</Label>
-									<ImageUpload
-										value={formData.coverImage ? [formData.coverImage] : []}
-										disabled={loading}
-										onChange={(url) =>
-											setFormData({ ...formData, coverImage: url })
-										}
-										onRemove={() =>
-											setFormData({ ...formData, coverImage: "" })
-										}
-									/>
+								
+                                <div className="flex gap-2 justify-end">
+                                    {isEditing && (
+										<Button
+											type="button"
+											variant="outline"
+											onClick={cancelEdit}
+										>
+											Cancel
+										</Button>
+									)}
+									<Button type="submit" size="lg">
+										{isEditing ? "Update News" : "Create News"}
+									</Button>
 								</div>
-								<div className="flex items-center">
-									<input
-										type="checkbox"
-										id="published"
-										checked={formData.published}
-										onChange={(e) =>
-											setFormData({ ...formData, published: e.target.checked })
-										}
-										className="mr-2"
-									/>
-									<Label htmlFor="published" className="cursor-pointer">
-										Publish immediately
-									</Label>
-								</div>
-								<Button type="submit">
-									{isEditing ? "Update News" : "Create News"}
-								</Button>
 							</form>
 						</CardContent>
 					</Card>
@@ -220,7 +266,7 @@ export default function NewsPage() {
 					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
 				</div>
 			) : (
-				<div className="grid gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{news.map((item, index) => (
 						<motion.div
 							key={item.id}
@@ -228,75 +274,97 @@ export default function NewsPage() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: index * 0.1 }}
 						>
-							<Card className="hover:shadow-lg transition-shadow overflow-hidden">
-								<Link
-									href={`/news/${item.id}`}
-									className="block cursor-pointer"
-								>
-									{item.coverImage && (
-										<div className="h-48 w-full overflow-hidden">
-											<img
-												src={item.coverImage}
-												alt={item.title}
-												className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-											/>
-										</div>
-									)}
-									<CardHeader>
-										<div className="flex justify-between items-start">
-											<div>
-												<CardTitle className="hover:text-primary transition-colors">
-													{item.title}
-												</CardTitle>
-												<p className="text-sm text-gray-600 mt-2">
-													{formatDate(item.createdAt)}
-												</p>
-												{item.excerpt && (
-													<p className="text-sm text-gray-700 mt-2">
-														{item.excerpt}
-													</p>
-												)}
-											</div>
-											<span
-												className={`px-3 py-1 rounded-full text-sm ${
-													item.published
-														? "bg-green-100 text-green-800"
-														: "bg-gray-100 text-gray-800"
-												}`}
-											>
-												{item.published ? "Published" : "Draft"}
-											</span>
-										</div>
-									</CardHeader>
-								</Link>
-								<CardContent>
-									<div className="flex gap-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={(e) => {
-												e.stopPropagation();
-												e.preventDefault();
-												handleEdit(item);
-											}}
-										>
-											<Edit size={16} className="mr-2" />
-											Edit
-										</Button>
-										<Button
-											variant="destructive"
-											size="sm"
-											onClick={(e) => {
-												e.stopPropagation();
-												e.preventDefault();
-												handleDelete(item.id);
-											}}
-										>
-											<Trash2 size={16} className="mr-2" />
-											Delete
-										</Button>
-									</div>
+							<Card className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 group border-t-4 border-t-transparent hover:border-t-primary h-full">
+                                <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
+                                    {item.coverImage ? (
+                                        <img
+                                            src={item.coverImage}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full items-center justify-center text-gray-400 bg-gray-50">
+                                            <span className="text-sm">No cover image</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute top-2 right-2">
+                                        <Badge variant={item.published ? "default" : "secondary"} className={item.published ? "bg-green-600 hover:bg-green-700" : ""}>
+                                            {item.published ? (
+                                                <span className="flex items-center gap-1"><CheckCircle size={12} /> Published</span>
+                                            ) : (
+                                                <span className="flex items-center gap-1"><XCircle size={12} /> Draft</span>
+                                            )}
+                                        </Badge>
+                                    </div>
+                                </div>
+
+								<CardHeader className="pb-3">
+                                    <Link
+                                        href={`/news/${item.id}`}
+                                        className="block cursor-pointer"
+                                    >
+                                        <CardTitle className="line-clamp-2 text-xl group-hover:text-primary transition-colors">
+                                            {item.title}
+                                        </CardTitle>
+                                    </Link>
+                                    <CardDescription className="flex items-center gap-2 mt-2">
+                                        <User size={14} /> 
+                                        <span>{item.author.name || item.author.email || "Unknown"}</span>
+                                    </CardDescription>
+								</CardHeader>
+
+								<CardContent className="flex-1 pb-3">
+                                    {item.excerpt && (
+                                        <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
+                                            {item.excerpt}
+                                        </p>
+                                    )}
+
+                                    <div className="space-y-1 text-xs text-gray-500">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar size={12} />
+                                            <span>Created: {formatDate(item.createdAt)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock size={12} />
+                                            <span>Updated: {formatDate(item.updatedAt)}</span>
+                                        </div>
+                                        {item.publishedAt && (
+                                            <div className="flex items-center gap-2 text-green-600 font-medium">
+                                                <CheckCircle size={12} />
+                                                <span>Published: {formatDate(item.publishedAt)}</span>
+                                            </div>
+                                        )}
+                                    </div>
 								</CardContent>
+
+                                <CardFooter className="pt-3 border-t bg-gray-50/50 flex justify-between">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            handleEdit(item);
+                                        }}
+                                        className="hover:bg-primary/10 hover:text-primary border-primary/20"
+                                    >
+                                        <Edit size={16} className="mr-2" />
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            handleDelete(item.id);
+                                        }}
+                                    >
+                                        <Trash2 size={16} className="mr-2" />
+                                        Delete
+                                    </Button>
+                                </CardFooter>
 							</Card>
 						</motion.div>
 					))}

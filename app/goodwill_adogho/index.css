@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+/* Redefine variables to override defaults for this page */
+@layer base {
+  :root {
+    --background: 40 30% 97%;
+    --foreground: 30 20% 15%;
+
+    --card: 40 40% 99%;
+    --card-foreground: 30 20% 15%;
+
+    --popover: 40 40% 99%;
+    --popover-foreground: 30 20% 15%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 35 25% 92%;
+    --secondary-foreground: 30 20% 20%;
+
+    --muted: 35 20% 94%;
+    --muted-foreground: 30 15% 45%;
+
+    --accent: 38 50% 88%;
+    --accent-foreground: 30 20% 20%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 25% 88%;
+    --input: 35 25% 88%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --gold: 38 70% 45%;
+    --gold-light: 40 60% 70%;
+    --gold-dark: 35 75% 35%;
+    --cream: 40 40% 96%;
+    --cream-dark: 35 30% 90%;
+    --warm-gray: 30 10% 40%;
+
+    --gradient-gold: linear-gradient(135deg, hsl(38 70% 45%), hsl(45 80% 55%));
+    --gradient-hero: linear-gradient(180deg, hsl(40 30% 97%) 0%, hsl(35 25% 92%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(40 40% 99%) 0%, hsl(35 30% 96%) 100%);
+
+    --shadow-soft: 0 4px 20px -4px hsl(30 20% 15% / 0.08);
+    --shadow-gold: 0 8px 30px -8px hsl(38 70% 45% / 0.25);
+    --shadow-elevated: 0 20px 50px -15px hsl(30 20% 15% / 0.15);
+
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 30 15% 8%;
+    --foreground: 40 30% 95%;
+
+    --card: 30 15% 12%;
+    --card-foreground: 40 30% 95%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 40 30% 95%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 12% 18%;
+    --secondary-foreground: 40 30% 95%;
+
+    --muted: 30 12% 18%;
+    --muted-foreground: 35 15% 60%;
+
+    --accent: 35 20% 22%;
+    --accent-foreground: 40 30% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 12% 20%;
+    --input: 30 12% 20%;
+    --ring: 217.2 91.2% 59.8%;
+
+    --gold: 40 65% 55%;
+    --gold-light: 42 55% 65%;
+    --gold-dark: 38 70% 45%;
+    --cream: 30 15% 15%;
+    --cream-dark: 30 12% 12%;
+    --warm-gray: 35 10% 65%;
+
+    --gradient-gold: linear-gradient(135deg, hsl(40 65% 55%), hsl(45 70% 60%));
+    --gradient-hero: linear-gradient(180deg, hsl(30 15% 8%) 0%, hsl(30 12% 12%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(30 15% 12%) 0%, hsl(30 12% 10%) 100%);
+
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-gold: 0 8px 30px -8px hsl(40 65% 55% / 0.3);
+    --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.4);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Override fonts */
+  body {
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-gold {
+    background: var(--gradient-gold);
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background: hsl(var(--card) / 0.8);
+  }
+}

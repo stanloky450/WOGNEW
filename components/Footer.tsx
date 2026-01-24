@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react"
+import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -72,6 +72,14 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition"
               >
+                {/* <TikTok className="w-6 h-6" /> */}
+              </a>
+              <a
+                href="https://instagram.com/wgministries"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition"
+              >
                 <Instagram className="w-6 h-6" />
               </a>
               <a
@@ -81,6 +89,14 @@ export default function Footer() {
                 className="text-gray-400 hover:text-white transition"
               >
                 <Facebook className="w-6 h-6" />
+              </a>
+              <a
+                href="https://facebook.com/WordofGraceMin.INC"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition"
+              >
+                <Youtube className="w-6 h-6" />
               </a>
             </div>
           </div>

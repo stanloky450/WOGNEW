@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Trash2, Upload } from "lucide-react"
+import { Plus, Trash2, Edit } from "lucide-react"
 import { formatDate } from "@/lib/utils"
+import ImageUpload from "@/components/ui/image-upload"
 
 interface Gallery {
   id: string
@@ -25,13 +26,16 @@ export default function GalleryManagementPage() {
   const [galleries, setGalleries] = useState<Gallery[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     eventDate: "",
     published: false,
   })
-  const [imageUrls, setImageUrls] = useState<string>("")
+  const [images, setImages] = useState<string[]>([])
 
   useEffect(() => {
     fetchGalleries()
@@ -51,28 +55,52 @@ export default function GalleryManagementPage() {
     }
   }
 
+  const handleEdit = (gallery: Gallery) => {
+    setFormData({
+      title: gallery.title,
+      description: gallery.description || "",
+      eventDate: new Date(gallery.eventDate).toISOString().split('T')[0],
+      published: gallery.published,
+    })
+    setImages(gallery.images.map(img => img.url))
+    setEditingId(gallery.id)
+    setIsEditing(true)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setEditingId(null)
+    setFormData({ title: "", description: "", eventDate: "", published: false })
+    setImages([])
+    setShowForm(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const urls = imageUrls.split("\n").filter((url) => url.trim())
-      const images = urls.map((url) => ({ url: url.trim(), caption: "" }))
+      const galleryImages = images.map((url) => ({ url, caption: "" }))
+      const url = "/api/gallery"
+      const method = isEditing ? "PUT" : "POST"
+      
+      const bodyPayload = {
+        ...formData,
+        images: galleryImages,
+        authorId: (session?.user as any)?.id,
+        ...(isEditing && { id: editingId }),
+      }
 
-      await fetch("/api/gallery", {
-        method: "POST",
+      await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          images,
-          authorId: (session?.user as any)?.id,
-        }),
+        body: JSON.stringify(bodyPayload),
       })
 
-      setFormData({ title: "", description: "", eventDate: "", published: false })
-      setImageUrls("")
-      setShowForm(false)
+      cancelEdit()
       fetchGalleries()
     } catch (error) {
-      console.error("Error creating gallery:", error)
+      console.error(`Error ${isEditing ? 'updating' : 'creating'} gallery:`, error)
     }
   }
 
@@ -90,7 +118,10 @@ export default function GalleryManagementPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Gallery Management</h1>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button onClick={() => {
+            if (showForm) cancelEdit()
+            else setShowForm(true)
+        }}>
           <Plus className="mr-2" size={18} />
           {showForm ? "Cancel" : "New Gallery"}
         </Button>
@@ -99,7 +130,7 @@ export default function GalleryManagementPage() {
       {showForm && (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Card>
-            <CardHeader><CardTitle>Create Gallery</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{isEditing ? "Edit Gallery" : "Create Gallery"}</CardTitle></CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -115,18 +146,24 @@ export default function GalleryManagementPage() {
                   <Input id="eventDate" type="date" value={formData.eventDate} onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })} required />
                 </div>
                 <div>
-                  <Label htmlFor="images">Image URLs (one per line)</Label>
-                  <Textarea id="images" value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} rows={6} placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" />
+                  <Label>Images</Label>
+                  <ImageUpload 
+                    value={images}
+                    onChange={(url) => setImages((prev) => [...prev, url])}
+                    onRemove={(url) => setImages((prev) => prev.filter((item) => item !== url))}
+                  />
                   <p className="text-sm text-gray-600 mt-1">
-                    <Upload size={14} className="inline mr-1" />
-                    Paste image URLs, one per line. For bulk upload, use image hosting services.
+                    Upload multiple images for this gallery.
                   </p>
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" id="published" checked={formData.published} onChange={(e) => setFormData({ ...formData, published: e.target.checked })} className="mr-2" />
                   <Label htmlFor="published" className="cursor-pointer">Publish immediately</Label>
                 </div>
-                <Button type="submit">Create Gallery</Button>
+                <div className="flex gap-2">
+                    <Button type="submit">{isEditing ? "Update Gallery" : "Create Gallery"}</Button>
+                    {isEditing && <Button type="button" variant="outline" onClick={cancelEdit}>Cancel</Button>}
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -160,10 +197,16 @@ export default function GalleryManagementPage() {
                       <img key={img.id} src={img.url} alt="" className="w-full h-16 object-cover rounded" />
                     ))}
                   </div>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(gallery.id)}>
-                    <Trash2 size={16} className="mr-2" />
-                    Delete
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(gallery)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(gallery.id)}>
+                        <Trash2 size={16} className="mr-2" />
+                        Delete
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

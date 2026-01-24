@@ -23,8 +23,8 @@ export default function ImageUpload({
   }, [])
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || !process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET) {
         alert("Cloudinary Configuration Missing! Please check .env file.")
@@ -34,29 +34,33 @@ export default function ImageUpload({
     setLoading(true)
 
     try {
-        const formData = new FormData()
-        formData.append("file", file)
-        formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
+        const uploadPromises = Array.from(files).map(async (file) => {
+            const formData = new FormData()
+            formData.append("file", file)
+            formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!)
 
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: formData
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            )
+
+            const data = await response.json()
+            if (!response.ok) {
+                 throw new Error(data.error?.message || "Upload failed")
             }
-        )
+            return data.secure_url
+        })
 
-        const data = await response.json()
-
-        if (response.ok) {
-            onChange(data.secure_url)
-        } else {
-            console.error("Upload Error:", data)
-            alert(`Upload Failed: ${data.error?.message || "Unknown error"}`)
-        }
-    } catch (error) {
+        const uploadedUrls = await Promise.all(uploadPromises)
+        
+        uploadedUrls.forEach(url => onChange(url))
+        
+    } catch (error: any) {
         console.error("Upload Error:", error)
-        alert("Something went wrong during upload.")
+        alert(`Something went wrong during upload: ${error.message}`)
     } finally {
         setLoading(false)
     }
@@ -68,7 +72,7 @@ export default function ImageUpload({
 
   return (
     <div className="mb-4 flex flex-col gap-4">
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center flex-wrap">
         {value.map((url) => (
           <div key={url} className="relative w-[200px] h-[200px] rounded-md overflow-hidden bg-gray-100 border">
             <div className="z-10 absolute top-2 right-2">
@@ -102,12 +106,13 @@ export default function ImageUpload({
             ) : (
                 <ImagePlus className="h-4 w-4 mr-2" />
             )}
-            {loading ? "Uploading..." : "Upload an Image"}
+            {loading ? "Uploading..." : "Upload Images"}
             </Button>
             <input 
                 id="cloudinary-upload"
                 type="file" 
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={onUpload}
                 disabled={disabled || loading}
