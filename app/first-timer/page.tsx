@@ -34,12 +34,12 @@ const firstTimerSchema = z.object({
 type FirstTimerForm = z.infer<typeof firstTimerSchema>
 
 const services = [
-  "Sunrise Service (8:00 AM)",
-  "Sunshine Service (9:30 AM)",
-  "Tuesday Digging Deep (Bible Study - 5:30 PM)",
-  "Thursday Faith Clinic (Prayer Meeting - 5:30 PM)",
+  "Leadership Training (Sunday)(8:00 AM)",
+  "Celebration Service (Sunday)(9:20 AM)",
+  "Wednesday Word Alive (Bible Study - 5:00 PM)",
+  "Friday (Prayer Meeting - 5:00 PM)",
   "Covenant Day (1st Day of the Month)",
-  "Celebration Church (3rd Sunday of the Month - 2nd Service)",
+  "Celebration Church (3rd Sunday of the Month)",
 ]
 
 const departments = [
@@ -52,9 +52,6 @@ const departments = [
   "Teens' Church",
   "Evangelism (Outreach & Soul-Winning)",
   "Follow-up (New Members Integration)",
-  "Decoration (Event & Sanctuary Aesthetics)",
-  "The Redeemer's Men Fellowship",
-  "Women of Zion",
   "Drama Ministry",
 ]
 
