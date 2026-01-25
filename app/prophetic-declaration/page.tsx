@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/Navigation";
-import VideoGrid from "@/components/video-grid";
 import MonthSelector from "@/components/month-selector";
 import PrayerPoints from "@/components/prayer-points";
 import Footer from "@/components/Footer";
-import VideoModal from "@/components/video-modal";
 
 const monthVideos = {
 	Year: {
@@ -64,40 +62,14 @@ const monthVideos = {
 };
 
 export default function Home() {
-	const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+    // Default to 'Year' so the main video shows covering the logic
+	const [selectedMonth, setSelectedMonth] = useState<string>("Year");
 	const [selectedVideo, setSelectedVideo] = useState<{
 		title: string;
 		youtubeUrl: string;
 		month?: string;
-	} | null>(null);
+	}>(monthVideos.Year);
 
-	useEffect(() => {
-		const currentDate = new Date();
-		const currentMonthIndex = currentDate.getMonth();
-		const currentMonth = months[currentMonthIndex];
-
-		setSelectedMonth(currentMonth);
-		const video = monthVideos[currentMonth as keyof typeof monthVideos];
-		if (video) {
-			setSelectedVideo({ ...video, month: currentMonth });
-		}
-	}, []);
-
-	const months = [
-		"Year",
-		"JANUARY",
-		"FEBRUARY",
-		"MARCH",
-		"APRIL",
-		"MAY",
-		"JUNE",
-		"JULY",
-		"AUGUST",
-		"SEPTEMBER",
-		"OCTOBER",
-		"NOVEMBER",
-		"DECEMBER",
-	];
 
 	const handleMonthSelect = (month: string) => {
 		setSelectedMonth(month);
@@ -112,21 +84,39 @@ export default function Home() {
 			<Header />
 			<div className="min-h-screen bg-gradient-to-br mt-14 from-purple-900 via-purple-800 to-purple-600">
 				<main className="container mx-auto px-4 py-8">
-					<VideoGrid onVideoClick={setSelectedVideo} />
+                    {/* Featured Video Cover */}
+                    {selectedVideo && (
+                        <div className="mb-12">
+                            <h1 className="text-3xl md:text-5xl font-bold text-white text-center mb-8 tracking-tight">
+                                {selectedVideo.title}
+                            </h1>
+                            <div className="max-w-5xl mx-auto bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-purple-400/30">
+                                <div className="aspect-video">
+                                    <iframe 
+                                        src={`${selectedVideo.youtubeUrl}?autoplay=1&rel=0`}
+                                        title={selectedVideo.title}
+                                        className="w-full h-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
 					<MonthSelector
-						selectedMonth={selectedMonth}
+						selectedMonth={selectedMonth === "Year" ? null : selectedMonth}
 						onMonthSelect={handleMonthSelect}
 					/>
-					<PrayerPoints month={selectedMonth} />
+                    
+                    {/* Only show prayer points if a specific month is selected, not Year */}
+					{selectedMonth !== "Year" && (
+                        <div className="animate-in fade-in slide-in-from-bottom-10 duration-700">
+                            <PrayerPoints month={selectedMonth} />
+                        </div>
+                    )}
 				</main>
 				<Footer />
-
-				{selectedVideo && (
-					<VideoModal
-						video={selectedVideo}
-						onClose={() => setSelectedVideo(null)}
-					/>
-				)}
 			</div>
 		</div>
 	);
