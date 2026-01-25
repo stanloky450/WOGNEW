@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils"
 // import Image from "next/image"
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
+import RichTextDisplay from "@/components/ui/rich-text-display"
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -53,9 +54,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
               )}
             </header>
 
-            <div className="prose prose-lg max-w-none text-gray-800 whitespace-pre-wrap">
-              {news.content}
-            </div>
+            <RichTextDisplay content={news.content} />
           </div>
         </article>
       </main>

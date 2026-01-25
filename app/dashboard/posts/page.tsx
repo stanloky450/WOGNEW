@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import ImageUpload from "@/components/ui/image-upload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 import { Plus, Edit, Trash2, Calendar, User, Clock, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -250,15 +251,12 @@ export default function PostsPage() {
 
 								<div>
 									<Label htmlFor="content">Content</Label>
-									<Textarea
-										id="content"
+									<RichTextEditor
 										value={formData.content}
-										onChange={(e) =>
-											setFormData({ ...formData, content: e.target.value })
+										onChange={(value) =>
+											setFormData({ ...formData, content: value })
 										}
-										rows={10}
-										required
-                                        className="mt-1 font-mono text-sm"
+                                        placeholder="Write your post content here..."
 									/>
 								</div>
 

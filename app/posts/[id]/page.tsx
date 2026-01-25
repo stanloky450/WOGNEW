@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils"
 // import Image from "next/image" // Using standard img for resilience
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
+import RichTextDisplay from "@/components/ui/rich-text-display"
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -63,9 +64,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
               )}
             </header>
 
-            <div className="prose prose-lg max-w-none text-gray-800 whitespace-pre-wrap">
-              {post.content}
-            </div>
+            <RichTextDisplay content={post.content} />
           </div>
         </article>
       </main>
