@@ -4,6 +4,7 @@ import FeaturedSections from "@/components/FeaturedSections";
 import Footer from "@/components/Footer";
 import DailyDevotional from "@/components/DailyDevotional";
 import MapSection from "@/components/MapSection";
+import HighlightsSection from "@/components/HighlightsSection";
 import { db } from "@/lib/db";
 
 export const revalidate = 60; // Revalidate every minute
@@ -41,6 +42,7 @@ export default async function Home() {
       <Navigation />
       <Hero />
       <DailyDevotional post={serializablePost} />
+      <HighlightsSection />
       <FeaturedSections />
       <MapSection />
       <Footer />

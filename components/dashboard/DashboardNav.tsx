@@ -26,7 +26,7 @@ export default function DashboardNav() {
     { href: "/dashboard/events", label: "Events", icon: Calendar, roles: ["SUPERADMIN", "ADMIN", "EDITOR", "EVENT_ADMIN"] },
     { href: "/dashboard/news", label: "News", icon: Newspaper, roles: ["SUPERADMIN", "ADMIN", "EDITOR", "NEWS_ADMIN"] },
     { href: "/dashboard/gallery", label: "Gallery", icon: ImageIcon, roles: ["SUPERADMIN", "ADMIN", "GALLERY_MANAGER", "EDITOR"] },
-    { href: "/dashboard/first-timers", label: "First Timers", icon: Users, roles: ["SUPERADMIN", "ADMIN"] },
+    { href: "/dashboard/first-timers", label: "First Timers", icon: Users, roles: ["SUPERADMIN", "ADMIN", "FIRST_ADMIN"] },
   ]
 
   const filteredNavItems = allNavItems.filter(item => {

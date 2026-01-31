@@ -33,12 +33,45 @@ export default function Navigation() {
 						>
 							Home
 						</Link>
-						<Link
-							href="/about"
-							className="text-gray-700 hover:text-primary transition"
-						>
-							About
-						</Link>
+						
+						<div className="relative group">
+							<button className="flex items-center space-x-1 text-gray-700 hover:text-primary transition focus:outline-none">
+								<span>About</span>
+								<svg 
+									xmlns="http://www.w3.org/2000/svg" 
+									width="16" 
+									height="16" 
+									viewBox="0 0 24 24" 
+									fill="none" 
+									stroke="currentColor" 
+									strokeWidth="2" 
+									strokeLinecap="round" 
+									strokeLinejoin="round" 
+									className="transition-transform duration-200 group-hover:rotate-180"
+								>
+									<path d="m6 9 6 6 6-6"/>
+								</svg>
+							</button>
+							<div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out transform origin-top-left z-50">
+								<div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+									<Link
+										href="/about"
+										className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
+										role="menuitem"
+									>
+										About Us
+									</Link>
+									<Link
+										href="/goodwill_adogho"
+										className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t border-gray-100"
+										role="menuitem"
+									>
+										Rev. Goodwill Adogho
+									</Link>
+								</div>
+							</div>
+						</div>
+
 						<Link
 							href="/gallery"
 							className="text-gray-700 hover:text-primary transition"
@@ -95,6 +128,13 @@ export default function Navigation() {
 							onClick={() => setIsOpen(false)}
 						>
 							About
+						</Link>
+						<Link
+							href="/goodwill_adogho"
+							className="block px-3 py-2 pl-6 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+							onClick={() => setIsOpen(false)}
+						>
+							Rev. Goodwill Adogho
 						</Link>
 						<Link
 							href="/gallery"
