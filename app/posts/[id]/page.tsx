@@ -86,7 +86,7 @@ export default async function PostPage({
 								</span>
 								{post.author.name && (
 									<span className="text-gray-500 text-sm py-1">
-										• By {post.author.name}
+										{/* • By {post.author.name} */}
 									</span>
 								)}
 							</div>
@@ -104,7 +104,7 @@ export default async function PostPage({
 
 						<RichTextDisplay content={post.content} />
 
-						<div className="mt-8 pt-8 border-t flex items-center justify-between">
+						{/* <div className="mt-8 pt-8 border-t flex items-center justify-between">
 							<div className="flex items-center gap-4">
 								<LikeButton
 									postId={post.id}
@@ -119,7 +119,7 @@ export default async function PostPage({
 							postId={post.id}
 							initialComments={post.comments}
 							currentUser={currentUser}
-						/>
+						/> */}
 					</div>
 				</article>
 			</main>
