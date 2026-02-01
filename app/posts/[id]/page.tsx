@@ -25,17 +25,17 @@ export default async function PostPage({
 			author: {
 				select: { name: true, image: true },
 			},
-			likes: true,
-			comments: {
-				include: {
-					author: {
-						select: { id: true, name: true, image: true },
-					},
-				},
-				orderBy: {
-					createdAt: "desc",
-				},
-			},
+			// likes: true,
+			// comments: {
+			// 	include: {
+			// 		author: {
+			// 			select: { id: true, name: true, image: true },
+			// 		},
+			// 	},
+			// 	orderBy: {
+			// 		createdAt: "desc",
+			// 	},
+			// },
 		},
 	});
 
@@ -44,11 +44,11 @@ export default async function PostPage({
 	}
 
 	// Casting post to any to avoid stale type errors, and asserting session user types
-	const isLiked = session?.user?.email
-		? (post as any).likes.some(
-				(like: any) => like.userId === (session.user as any).id,
-			)
-		: false;
+	// const isLiked = session?.user?.email
+	// 	? (post as any).likes.some(
+	// 			(like: any) => like.userId === (session.user as any).id,
+	// 		)
+	// 	: false;
 
 	const currentUser = session?.user
 		? {
