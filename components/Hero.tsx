@@ -104,7 +104,7 @@ export default function Hero() {
 								Sunday Services
 							</h3>
 							<p className="text-white/80">LeaderShip Training: 8:00 AM</p>
-							<p className="text-white/80">Celebration: 9:30 AM</p>
+							<p className="text-white/80">Celebration: 9:00 AM</p>
 						</motion.div>
 
 						<motion.div
@@ -120,7 +120,7 @@ export default function Hero() {
 								Midweek Services
 							</h3>
 							<p className="text-white/80">Wednesday Word Alive: 5:00 PM</p>
-							<p className="text-white/80">Friday Prayer: 5:00 PM</p>
+							{/* <p className="text-white/80">Friday Prayer: 5:00 PM</p> */}
 						</motion.div>
 
 						<motion.div
@@ -135,8 +135,8 @@ export default function Hero() {
 							<h3 className="text-xl font-semibold text-white mb-2">
 								Special Services
 							</h3>
-							<p className="text-white/80">Covenant Day: 1st of Month</p>
-							<p className="text-white/80">Celebration: 3rd Sunday</p>
+							<p className="text-white/80">MORNING GLORY: 1st of Month</p>
+							{/* <p className="text-white/80">Celebration: 3rd Sunday</p> */}
 						</motion.div>
 					</motion.div>
 				</div>
