@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
+import { useRouter } from "next/navigation"
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import ImageUpload from "@/components/ui/image-upload"
+import SuccessRedirectModal from "@/components/ui/success-redirect-modal"
 import {
   Select,
   SelectContent,
@@ -18,6 +20,7 @@ import {
 } from "@/components/ui/select"
 
 export default function MembershipBioPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     fullName: "",
     profilePhoto: "",
@@ -35,6 +38,9 @@ export default function MembershipBioPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const redirectToHome = useCallback(() => {
+    router.push("/")
+  }, [router])
 
   const resetForm = () => {
     setFormData({
@@ -83,6 +89,11 @@ export default function MembershipBioPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SuccessRedirectModal
+        open={isSubmitted}
+        onRedirect={redirectToHome}
+        description="Your membership bio has been submitted successfully. Thank you for sharing your details with the church office."
+      />
       <Navigation />
       <div className="pt-24 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -94,12 +105,6 @@ export default function MembershipBioPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {isSubmitted && (
-                <div className="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-green-800">
-                  Membership bio submitted successfully.
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-6 text-black">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

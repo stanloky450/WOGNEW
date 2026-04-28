@@ -23,7 +23,7 @@ function buildHtmlMessage(fullName: string, kind: RegistrationKind) {
     kind === "first-timer"
       ? "Thank you for completing our First Timer registration."
       : "Thank you for submitting your Membership Bio registration."
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000 || ";
   const logoUrl = `${siteUrl.replace(/\/$/, "")}/images/WOGLOGO.png`
 
   return `
@@ -57,12 +57,12 @@ function buildHtmlMessage(fullName: string, kind: RegistrationKind) {
             </div>
 
             <p style="margin:18px 0 0 0;line-height:1.7;color:#374151;">We look forward to worshipping with you.</p>
-            <p style="margin:10px 0 0 0;line-height:1.7;color:#111827;"><strong>Grace and peace,</strong><br/>Word of Grace Ministries</p>
+            <p style="margin:10px 0 0 0;line-height:1.7;color:#111827;"><strong>Grace and peace be multiplied,</strong><br/>Word of Grace Ministries</p>
           </td>
         </tr>
       </table>
     </div>
-  `
+  `;
 }
 
 export async function sendRegistrationThankYouEmail(input: RegistrationEmailInput) {

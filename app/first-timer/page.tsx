@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-// import { motion } from "framer-motion"
+import { useCallback, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -13,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import SuccessRedirectModal from "@/components/ui/success-redirect-modal"
 import { useRouter } from "next/navigation"
 
 const firstTimerSchema = z.object({
@@ -86,6 +86,9 @@ export default function FirstTimerPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const redirectToHome = useCallback(() => {
+    router.push("/")
+  }, [router])
 
   const {
     register,
@@ -123,7 +126,6 @@ export default function FirstTimerPage() {
       if (response.ok) {
         setSubmitSuccess(true)
         reset()
-        setTimeout(() => router.push("/"), 3000)
       } else {
         alert("Something went wrong. Please try again.")
       }
@@ -158,20 +160,13 @@ export default function FirstTimerPage() {
     setValue("updatePreferences", nextValue, { shouldValidate: true, shouldDirty: true })
   }
 
-  if (submitSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600">
-        <div className="text-center text-white p-8">
-            <h2 className="text-4xl font-bold mb-4">Thank You!</h2>
-            <p className="text-xl">We're excited to have you worship with us!</p>
-            <p className="mt-4">Redirecting to homepage...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
+      <SuccessRedirectModal
+        open={submitSuccess}
+        onRedirect={redirectToHome}
+        description="We're excited to have you worship with us. Your first-timer form has been received successfully."
+      />
       <Navigation />
       <div className="pt-24 pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -531,12 +526,7 @@ export default function FirstTimerPage() {
                     </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    disabled={isSubmitting}
-                  >
+                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Submitting..." : "Submit Form"}
                   </Button>
                 </form>
