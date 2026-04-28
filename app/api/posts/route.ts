@@ -4,18 +4,36 @@ import { db } from "@/lib/db"
 export async function GET(request: Request) {
   try {
     const posts = await db.post.findMany({
-      include: {
-        author: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
       orderBy: { createdAt: "desc" },
     })
 
-    return NextResponse.json({ success: true, data: posts })
+    const authorIds = Array.from(new Set(posts.map((post) => post.authorId).filter(Boolean)))
+    const authors = await db.user.findMany({
+      where: {
+        id: {
+          in: authorIds,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    })
+
+    const authorById = new Map(authors.map((author) => [author.id, author]))
+    const postsWithAuthors = posts.map((post) => {
+      const author = authorById.get(post.authorId)
+      return {
+        ...post,
+        author: {
+          name: author?.name ?? null,
+          email: author?.email ?? "unknown@local",
+        },
+      }
+    })
+
+    return NextResponse.json({ success: true, data: postsWithAuthors })
   } catch (error) {
     console.error("Error fetching posts:", error)
     return NextResponse.json(
@@ -101,6 +119,7 @@ export async function POST(request: Request) {
         excerpt: body.excerpt,
         coverImage: body.coverImage,
         published: body.published || false,
+        commentsEnabled: body.commentsEnabled !== false,
         publishedAt: body.published ? new Date() : null,
         authorId: body.authorId,
       },
@@ -134,6 +153,7 @@ export async function PUT(request: Request) {
         excerpt: body.excerpt,
         coverImage: body.coverImage,
         published: body.published,
+        commentsEnabled: body.commentsEnabled !== false,
         publishedAt: body.published ? new Date() : null,
       },
     })

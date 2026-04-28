@@ -1,12 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 
 export default function Navigation() {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isAboutOpen, setIsAboutOpen] = useState(false);
+	const pathname = usePathname();
+
+	useEffect(() => {
+		setIsOpen(false);
+		setIsAboutOpen(false);
+	}, [pathname]);
+
+	const closeMenu = () => {
+		setIsOpen(false);
+		setIsAboutOpen(false);
+	};
 
 	return (
 		<nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 shadow-md">
@@ -93,6 +106,9 @@ export default function Navigation() {
 						<Link href="/first-timer">
 							<Button>First Timer</Button>
 						</Link>
+						<Link href="/membership-bio">
+							<Button variant="outline">Membership Bio</Button>
+						</Link>
 						<Link href="/give">
 							<Button>GIVE </Button>
 						</Link>
@@ -104,7 +120,9 @@ export default function Navigation() {
 					{/* Mobile menu button */}
 					<button
 						onClick={() => setIsOpen(!isOpen)}
-						className="md:hidden text-gray-700"
+						className="md:hidden text-gray-700 p-2"
+						aria-label="Toggle mobile menu"
+						aria-expanded={isOpen}
 					>
 						{isOpen ? <X size={24} /> : <Menu size={24} />}
 					</button>
@@ -113,64 +131,91 @@ export default function Navigation() {
 
 			{/* Mobile Navigation */}
 			{isOpen && (
-				<div className="md:hidden bg-white border-t">
-					<div className="px-2 pt-2 pb-3 space-y-1">
+				<div className="md:hidden bg-white border-t max-h-[calc(100vh-4rem)] overflow-y-auto">
+					<div className="px-3 py-3 space-y-1">
 						<Link
 							href="/"
 							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
+							onClick={closeMenu}
 						>
 							Home
 						</Link>
-						<Link
-							href="/about"
-							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
+
+						<button
+							type="button"
+							onClick={() => setIsAboutOpen((prev) => !prev)}
+							className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md flex items-center justify-between"
+							aria-expanded={isAboutOpen}
 						>
-							About
-						</Link>
-						<Link
-							href="/goodwill_adogho"
-							className="block px-3 py-2 pl-6 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
-						>
-							Rev. Goodwill Adogho
-						</Link>
+							<span>About</span>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								className={`transition-transform ${isAboutOpen ? "rotate-180" : ""}`}
+							>
+								<path d="m6 9 6 6 6-6" />
+							</svg>
+						</button>
+
+						{isAboutOpen && (
+							<div className="pl-4 space-y-1">
+								<Link
+									href="/about"
+									className="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+									onClick={closeMenu}
+								>
+									About Us
+								</Link>
+								<Link
+									href="/goodwill_adogho"
+									className="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+									onClick={closeMenu}
+								>
+									Rev. Goodwill Adogho
+								</Link>
+							</div>
+						)}
+
 						<Link
 							href="/gallery"
 							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
+							onClick={closeMenu}
 						>
 							Gallery
 						</Link>
 						<Link
 							href="/events"
 							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
+							onClick={closeMenu}
 						>
 							Events
 						</Link>
 						<Link
 							href="/news"
 							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
+							onClick={closeMenu}
 						>
 							News
 						</Link>
-						<Link
-							href="/first-timer"
-							className="block px-3 py-2 text-primary font-semibold hover:bg-gray-100 rounded-md"
-							onClick={() => setIsOpen(false)}
-						>
-							First Timer
-						</Link>
-						<Link
-							href="/give"
-							className="block px-3 py-2 text-primary font-semibold hover:bg-yellow-100 rounded-md"
-							onClick={() => setIsOpen(false)}
-						>
-							Give Online
-						</Link>
+
+						<div className="pt-2 space-y-2">
+							<Link href="/first-timer" onClick={closeMenu} className="block">
+								<Button className="w-full">First Timer</Button>
+							</Link>
+							<Link href="/membership-bio" onClick={closeMenu} className="block">
+								<Button variant="outline" className="w-full">Membership Bio</Button>
+							</Link>
+							<Link href="/give" onClick={closeMenu} className="block">
+								<Button className="w-full">Give</Button>
+							</Link>
+						</div>
 						{/* <Link
 							href="/dashboard"
 							className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"

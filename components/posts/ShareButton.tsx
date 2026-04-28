@@ -10,12 +10,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export function ShareButton() {
+interface ShareButtonProps {
+  url?: string
+  title?: string
+  className?: string
+}
+
+export function ShareButton({ url, title, className }: ShareButtonProps) {
   const [copied, setCopied] = useState(false)
 
+  const getShareUrl = () => {
+    if (typeof window === "undefined") return ""
+    if (!url) return window.location.href
+    if (url.startsWith("http://") || url.startsWith("https://")) return url
+    return `${window.location.origin}${url}`
+  }
+
   const handleCopyLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href)
+    const shareUrl = getShareUrl()
+    if (shareUrl) {
+      navigator.clipboard.writeText(shareUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
@@ -25,8 +39,8 @@ export function ShareButton() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: document.title,
-          url: window.location.href,
+          title: title || document.title,
+          url: getShareUrl(),
         })
       } catch (err) {
         console.error("Error sharing:", err)
@@ -39,7 +53,7 @@ export function ShareButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 rounded-full">
+        <Button variant="outline" size="sm" className={`gap-2 rounded-full ${className || ""}`}>
           <Share2 className="w-4 h-4" />
           Share
         </Button>

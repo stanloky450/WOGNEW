@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Calendar, Newspaper, Image as ImageIcon, Users } from "lucide-react"
 
@@ -14,6 +15,7 @@ export default function DashboardPage() {
     news: 0,
     galleries: 0,
     firstTimers: 0,
+    memberBios: 0,
   })
 
   useEffect(() => {
@@ -22,12 +24,13 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const [posts, events, news, galleries, firstTimers] = await Promise.all([
+      const [posts, events, news, galleries, firstTimers, memberBios] = await Promise.all([
         fetch("/api/posts").then((r) => r.json()),
         fetch("/api/events").then((r) => r.json()),
         fetch("/api/news").then((r) => r.json()),
         fetch("/api/gallery").then((r) => r.json()),
         fetch("/api/first-timer").then((r) => r.json()),
+        fetch("/api/member-bio").then((r) => r.json()),
       ])
 
       setStats({
@@ -36,6 +39,7 @@ export default function DashboardPage() {
         news: news.data?.length || 0,
         galleries: galleries.data?.length || 0,
         firstTimers: firstTimers.data?.length || 0,
+        memberBios: memberBios.data?.length || 0,
       })
     } catch (error) {
       console.error("Error fetching stats:", error)
@@ -78,6 +82,13 @@ export default function DashboardPage() {
       color: "bg-yellow-500",
       href: "/dashboard/first-timers",
     },
+    {
+      title: "Member Bios",
+      value: stats.memberBios,
+      icon: Users,
+      color: "bg-indigo-500",
+      href: "/dashboard/member-bios",
+    },
   ]
 
   return (
@@ -101,22 +112,24 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    {card.title}
-                  </CardTitle>
-                  <div className={`${card.color} p-2 rounded-lg`}>
-                    <Icon className="h-5 w-5 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{card.value}</div>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Total {card.title.toLowerCase()}
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href={card.href} className="block">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:ring-2 hover:ring-primary/30">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">
+                      {card.title}
+                    </CardTitle>
+                    <div className={`${card.color} p-2 rounded-lg`}>
+                      <Icon className="h-5 w-5 text-white" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{card.value}</div>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Total {card.title.toLowerCase()}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             </motion.div>
           )
         })}

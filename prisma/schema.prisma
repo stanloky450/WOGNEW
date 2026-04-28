@@ -7,6 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -55,6 +56,7 @@ model Post {
   excerpt     String?
   coverImage  String?
   published   Boolean  @default(false)
+  commentsEnabled Boolean @default(true)
   publishedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -154,4 +156,23 @@ model Like {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+}
+
+model MemberBio {
+  id                String   @id @default(cuid())
+  fullName          String
+  profilePhoto      String?
+  phoneNumber       String
+  email             String?
+  gender            String?
+  maritalStatus     String?
+  occupation        String?
+  department        String?
+  address           String?
+  shortBio          String
+  salvationStory    String?
+  prayerRequest     String?
+  isActiveMember    Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

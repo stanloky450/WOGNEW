@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Mail, Phone, Calendar, User, FileText, CheckCircle, HelpCircle } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Calendar, User, FileText, CheckCircle, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface FirstTimer {
@@ -29,6 +30,7 @@ interface FirstTimer {
 export default function FirstTimerDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [firstTimer, setFirstTimer] = useState<FirstTimer | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -60,6 +62,28 @@ export default function FirstTimerDetailPage() {
     }
   };
 
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const canDelete = role === "SUPERADMIN" || role === "ADMIN";
+
+  const handleDelete = async () => {
+    if (!firstTimer || !canDelete) return;
+    if (!confirm("Delete this first timer record?")) return;
+
+    try {
+      const response = await fetch(`/api/first-timer/${firstTimer.id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete");
+      }
+      router.push("/dashboard/first-timers");
+    } catch (error) {
+      console.error("Error deleting first timer:", error);
+      alert("Failed to delete this record.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -85,9 +109,16 @@ export default function FirstTimerDetailPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <Button variant="ghost" className="mb-6" onClick={() => router.back()}>
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
-      </Button>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Button variant="ghost" onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
+        </Button>
+        {canDelete && (
+          <Button variant="destructive" onClick={handleDelete}>
+            <Trash2 className="mr-2 h-4 w-4" /> Delete
+          </Button>
+        )}
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

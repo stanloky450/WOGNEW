@@ -10,6 +10,7 @@ import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, User, Clock, ArrowRight } from "lucide-react"
+import { ShareButton } from "@/components/posts/ShareButton"
 
 interface Post {
   id: string
@@ -130,12 +131,13 @@ export default function PostsPage() {
                         </div>
                     </CardContent>
 
-                    <CardFooter className="pt-3 border-t bg-gray-50/50">
-                        <Button asChild className="w-full group-hover:bg-primary group-hover:text-white transition-colors" variant="outline">
+                    <CardFooter className="pt-3 border-t bg-gray-50/50 flex items-center gap-2">
+                        <Button asChild className="flex-1 group-hover:bg-primary group-hover:text-white transition-colors" variant="outline">
                              <Link href={`/posts/${post.id}`}>
                                 Read More <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
+                        <ShareButton url={`/posts/${post.id}`} title={post.title} />
                     </CardFooter>
                   </Card>
                 </motion.div>

@@ -83,18 +83,31 @@ async function main() {
 	// })
 	// console.log("Post Admin created: ekezefaith2003@gmail.com")
 
-	const passwords = await hash("2026@Ajayi", 12);
+	const passwords = await hash("2026@Newton", 12);
 	await prisma.user.upsert({
-		where: { email: "ajayiosetohamen@gmail.com" },
-		update: { role: "ADMIN", password: passwords },
+		where: { email: "mercynewton053@gmail.com" },
+		update: { role: "POST_ADMIN", password: passwords },
 		create: {
-			email: "ajayiosetohamen@gmail.com",
-			name: "Samson Admin",
+			email: "mercynewton053@gmail.com",
+			name: "Posts Admin",
 			password: passwords,
-			role: "ADMIN",
+			role: "POST_ADMIN",
 		},
 	});
-	console.log("Post Admin created: ajayiosetohamen@gmail.com");
+	console.log("Post Admin created: mercynewton053@gmail.com");
+
+	// const passwords = await hash("2026@Ajayi", 12);
+	// await prisma.user.upsert({
+	// 	where: { email: "ajayiosetohamen@gmail.com" },
+	// 	update: { role: "ADMIN", password: passwords },
+	// 	create: {
+	// 		email: "ajayiosetohamen@gmail.com",
+	// 		name: "Samson Admin",
+	// 		password: passwords,
+	// 		role: "ADMIN",
+	// 	},
+	// });
+	// console.log("Post Admin created: ajayiosetohamen@gmail.com");
 
 	await prisma.user.upsert({
 		where: { email: "okpuzorexcel900@gmail.com" },

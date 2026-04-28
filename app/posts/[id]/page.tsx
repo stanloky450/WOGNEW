@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
-// import Image from "next/image" // Using standard img for resilience
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import RichTextDisplay from "@/components/ui/rich-text-display";
@@ -25,17 +24,17 @@ export default async function PostPage({
 			author: {
 				select: { name: true, image: true },
 			},
-			// likes: true,
-			// comments: {
-			// 	include: {
-			// 		author: {
-			// 			select: { id: true, name: true, image: true },
-			// 		},
-			// 	},
-			// 	orderBy: {
-			// 		createdAt: "desc",
-			// 	},
-			// },
+			likes: true,
+			comments: {
+				include: {
+					author: {
+						select: { id: true, name: true, image: true },
+					},
+				},
+				orderBy: {
+					createdAt: "desc",
+				},
+			},
 		},
 	});
 
@@ -43,17 +42,26 @@ export default async function PostPage({
 		return notFound();
 	}
 
-	// Casting post to any to avoid stale type errors, and asserting session user types
-	// const isLiked = session?.user?.email
-	// 	? (post as any).likes.some(
-	// 			(like: any) => like.userId === (session.user as any).id,
-	// 		)
-	// 	: false;
+	const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+	const sessionUserRole = (session?.user as { role?: string } | undefined)?.role;
+	const canViewDraft =
+		sessionUserRole === "SUPERADMIN" ||
+		sessionUserRole === "ADMIN" ||
+		sessionUserRole === "POST_ADMIN" ||
+		sessionUserRole === "EDITOR";
 
-	const currentUser = session?.user
+	if (!post.published && !canViewDraft) {
+		return notFound();
+	}
+
+	const isLiked = Boolean(
+		sessionUserId && post.likes.some((like) => like.userId === sessionUserId),
+	);
+
+	const currentUser = sessionUserId
 		? {
-				id: (session.user as any).id as string,
-				role: (session.user as any).role as string,
+				id: sessionUserId,
+				role: sessionUserRole,
 			}
 		: null;
 
@@ -75,20 +83,20 @@ export default async function PostPage({
 
 					<div className="p-8">
 						<header className="mb-8">
-							<div className="flex gap-2 mb-4">
+							<div className="flex gap-2 mb-4 flex-wrap">
 								<span
 									className={`px-3 py-1 rounded-full text-sm font-medium ${post.published ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
 								>
 									{post.published ? "Published" : "Draft"}
 								</span>
+								<span
+									className={`px-3 py-1 rounded-full text-sm font-medium ${post.commentsEnabled ? "bg-blue-100 text-blue-800" : "bg-gray-200 text-gray-700"}`}
+								>
+									{post.commentsEnabled ? "Comments On" : "Comments Off"}
+								</span>
 								<span className="text-gray-500 text-sm py-1">
 									• {formatDate(post.createdAt)}
 								</span>
-								{post.author.name && (
-									<span className="text-gray-500 text-sm py-1">
-										{/* • By {post.author.name} */}
-									</span>
-								)}
 							</div>
 
 							<h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -104,22 +112,28 @@ export default async function PostPage({
 
 						<RichTextDisplay content={post.content} />
 
-						{/* <div className="mt-8 pt-8 border-t flex items-center justify-between">
+						<div className="mt-8 pt-8 border-t flex items-center justify-between flex-wrap gap-3">
 							<div className="flex items-center gap-4">
-								<LikeButton
-									postId={post.id}
-									initialCount={post.likes.length}
-									initialIsLiked={isLiked}
-								/>
-								<ShareButton />
+								{post.published && (
+									<LikeButton
+										postId={post.id}
+										initialCount={post.likes.length}
+										initialIsLiked={isLiked}
+									/>
+								)}
+								<ShareButton title={post.title} />
 							</div>
+							<span className="text-sm text-gray-500">
+								{post.comments.length} comment{post.comments.length === 1 ? "" : "s"}
+							</span>
 						</div>
 
 						<CommentSection
 							postId={post.id}
 							initialComments={post.comments}
+							commentsEnabled={post.commentsEnabled}
 							currentUser={currentUser}
-						/> */}
+						/>
 					</div>
 				</article>
 			</main>

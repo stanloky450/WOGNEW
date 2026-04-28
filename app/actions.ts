@@ -66,6 +66,19 @@ export async function addComment(postId: string, content: string) {
     throw new Error("Comment cannot be empty")
   }
 
+  const post = await db.post.findUnique({
+    where: { id: postId },
+    select: { commentsEnabled: true },
+  })
+
+  if (!post) {
+    throw new Error("Post not found")
+  }
+
+  if (!post.commentsEnabled) {
+    throw new Error("Comments are disabled for this post")
+  }
+
   await db.comment.create({
     data: {
       content: content,

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,13 +13,20 @@ import {
   Image as ImageIcon,
   Users,
   LogOut,
-  Home
+  Home,
+  Menu,
+  X,
 } from "lucide-react"
 
 export default function DashboardNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const role = (session?.user as any)?.role
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const allNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["SUPERADMIN", "ADMIN", "NEWS_ADMIN", "EVENT_ADMIN", "POST_ADMIN", "GALLERY_MANAGER", "EDITOR"] },
@@ -27,6 +35,7 @@ export default function DashboardNav() {
     { href: "/dashboard/news", label: "News", icon: Newspaper, roles: ["SUPERADMIN", "ADMIN", "EDITOR", "NEWS_ADMIN"] },
     { href: "/dashboard/gallery", label: "Gallery", icon: ImageIcon, roles: ["SUPERADMIN", "ADMIN", "GALLERY_MANAGER", "EDITOR"] },
     { href: "/dashboard/first-timers", label: "First Timers", icon: Users, roles: ["SUPERADMIN", "ADMIN", "FIRST_ADMIN"] },
+    { href: "/dashboard/member-bios", label: "Member Bios", icon: Users, roles: ["SUPERADMIN", "ADMIN"] },
   ]
 
   const filteredNavItems = allNavItems.filter(item => {
@@ -45,7 +54,7 @@ export default function DashboardNav() {
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4 md:space-x-8">
             <Link href="/dashboard" className="flex items-center space-x-2">
               <span className="text-2xl font-bold text-primary">WOG</span>
               <span className="text-sm font-semibold text-gray-700">Dashboard</span>
@@ -73,8 +82,8 @@ export default function DashboardNav() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <Link href="/">
+          <div className="hidden md:flex items-center space-x-4">
+            <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
               <Button variant="outline" size="sm">
                 <Home size={18} className="mr-2" />
                 View Site
@@ -88,7 +97,62 @@ export default function DashboardNav() {
               Logout
             </Button>
           </div>
+
+          <button
+            type="button"
+            className="md:hidden p-2 text-gray-700"
+            aria-label="Toggle dashboard menu"
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          >
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t py-3 space-y-2">
+            <div className="space-y-1">
+              {filteredNavItems.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            <div className="pt-2 border-t space-y-2">
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                <Button variant="outline" size="sm" className="w-full justify-center">
+                  <Home size={18} className="mr-2" />
+                  View Site
+                </Button>
+              </Link>
+              <p className="text-xs text-gray-600 px-1 break-all">{session?.user?.email}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-center"
+                onClick={() => signOut()}
+              >
+                <LogOut size={18} className="mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )

@@ -13,6 +13,7 @@ import RichTextEditor from "@/components/ui/rich-text-editor";
 import { Plus, Edit, Trash2, Calendar, User, Clock, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ShareButton } from "@/components/posts/ShareButton";
 
 interface Post {
 	id: string;
@@ -24,6 +25,7 @@ interface Post {
 	updatedAt: string;
 	publishedAt: string | null;
 	coverImage: string | null;
+	commentsEnabled: boolean;
 	author: {
 		name: string | null;
 		email: string;
@@ -41,6 +43,7 @@ export default function PostsPage() {
 		excerpt: "",
 		coverImage: "",
 		published: false,
+		commentsEnabled: true,
 	});
 
 	useEffect(() => {
@@ -76,6 +79,7 @@ export default function PostsPage() {
 			excerpt: post.excerpt || "",
 			coverImage: (post as any).coverImage || "",
 			published: post.published,
+			commentsEnabled: post.commentsEnabled,
 		});
 		setEditingId(post.id);
 		setIsEditing(true);
@@ -92,6 +96,7 @@ export default function PostsPage() {
 			excerpt: "",
 			coverImage: "",
 			published: false,
+			commentsEnabled: true,
 		});
 		setShowForm(false);
 	};
@@ -231,6 +236,20 @@ export default function PostsPage() {
                                                 Publish immediately
                                             </Label>
                                         </div>
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id="commentsEnabled"
+                                                checked={formData.commentsEnabled}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, commentsEnabled: e.target.checked })
+                                                }
+                                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                            />
+                                            <Label htmlFor="commentsEnabled" className="cursor-pointer font-medium">
+                                                Allow comments on this post
+                                            </Label>
+                                        </div>
                                     </div>
                                     <div>
                                         <Label>Cover Image</Label>
@@ -301,7 +320,7 @@ export default function PostsPage() {
                                     </div>
                                 )}
                                 <div className="absolute top-2 right-2">
-                                     <Badge variant={post.published ? "default" : "secondary"} className={post.published ? "bg-green-600 hover:bg-green-700" : ""}>
+                                    <Badge variant={post.published ? "default" : "secondary"} className={post.published ? "bg-green-600 hover:bg-green-700" : ""}>
                                         {post.published ? (
                                             <span className="flex items-center gap-1"><CheckCircle size={12} /> Published</span>
                                         ) : (
@@ -345,10 +364,18 @@ export default function PostsPage() {
                                             <span>Published: {formatDate(post.publishedAt)}</span>
                                         </div>
                                     )}
+                                    <div className="flex items-center gap-2">
+                                        <span
+                                            className={`inline-block h-2.5 w-2.5 rounded-full ${post.commentsEnabled ? "bg-blue-600" : "bg-gray-400"}`}
+                                        />
+                                        <span>{post.commentsEnabled ? "Comments enabled" : "Comments disabled"}</span>
+                                    </div>
                                 </div>
 							</CardContent>
 
-                            <CardFooter className="pt-3 border-t bg-gray-50/50 flex justify-between">
+                            <CardFooter className="pt-3 border-t bg-gray-50/50 flex flex-wrap gap-2 justify-between">
+                                <ShareButton url={`/posts/${post.id}`} title={post.title} />
+                                <div className="flex items-center gap-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -370,6 +397,7 @@ export default function PostsPage() {
                                     <Trash2 size={16} className="mr-2" />
                                     Delete
                                 </Button>
+                                </div>
                             </CardFooter>
 						</Card>
 					))}

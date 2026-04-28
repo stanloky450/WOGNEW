@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { sendRegistrationThankYouEmail } from "@/lib/registration-mailer"
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +23,14 @@ export async function POST(request: Request) {
         suggestions: body.suggestions || null,
       },
     })
+
+    if (firstTimer.email) {
+      void sendRegistrationThankYouEmail({
+        to: firstTimer.email,
+        fullName: firstTimer.fullName,
+        kind: "first-timer",
+      })
+    }
 
     return NextResponse.json({ success: true, data: firstTimer }, { status: 201 })
   } catch (error) {

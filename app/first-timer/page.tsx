@@ -16,19 +16,46 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter } from "next/navigation"
 
 const firstTimerSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(80, "Name is too long"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9\s\-()]{10,20}$/, "Please enter a valid phone number")
+    .refine((value) => {
+      const digitsOnly = value.replace(/\D/g, "")
+      return digitsOnly.length >= 10 && digitsOnly.length <= 15
+    }, "Phone number should contain 10 to 15 digits"),
   email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
   ageGroup: z.enum(["UNDER_18", "AGE_18_25", "AGE_26_35", "AGE_36_50", "AGE_51_PLUS"]).optional(),
   isFirstTime: z.boolean(),
   attendingDuration: z.string().optional(),
-  servicesAttended: z.array(z.string()),
+  servicesAttended: z.array(z.string()).min(1, "Please select at least one service"),
   departmentsInterest: z.array(z.string()),
   needsCounseling: z.boolean(),
   prayerRequest: z.string().optional(),
-  updatePreferences: z.array(z.string()),
+  updatePreferences: z.array(z.string()).min(1, "Please select at least one update preference"),
   serviceFeedback: z.string().optional(),
   suggestions: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (!data.isFirstTime && !data.attendingDuration?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["attendingDuration"],
+      message: "Please tell us how long you have been attending",
+    })
+  }
+
+  if (data.needsCounseling && !data.prayerRequest?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["prayerRequest"],
+      message: "Please share your counseling or prayer need",
+    })
+  }
 })
 
 type FirstTimerForm = z.infer<typeof firstTimerSchema>
@@ -59,17 +86,14 @@ export default function FirstTimerPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [isFirstTime, setIsFirstTime] = useState(true)
-  const [servicesAttended, setServicesAttended] = useState<string[]>([])
-  const [departmentsInterest, setDepartmentsInterest] = useState<string[]>([])
-  const [updatePreferences, setUpdatePreferences] = useState<string[]>([])
-  const [needsCounseling, setNeedsCounseling] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<FirstTimerForm>({
     resolver: zodResolver(firstTimerSchema),
     defaultValues: {
@@ -81,28 +105,24 @@ export default function FirstTimerPage() {
     },
   })
 
+  const isFirstTime = watch("isFirstTime")
+  const needsCounseling = watch("needsCounseling")
+  const servicesAttended = watch("servicesAttended")
+  const departmentsInterest = watch("departmentsInterest")
+  const updatePreferences = watch("updatePreferences")
+
   const onSubmit = async (data: FirstTimerForm) => {
     setIsSubmitting(true)
     try {
       const response = await fetch("/api/first-timer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          servicesAttended,
-          departmentsInterest,
-          updatePreferences,
-          needsCounseling,
-          isFirstTime,
-        }),
+        body: JSON.stringify(data),
       })
 
       if (response.ok) {
         setSubmitSuccess(true)
         reset()
-        setServicesAttended([])
-        setDepartmentsInterest([])
-        setUpdatePreferences([])
         setTimeout(() => router.push("/"), 3000)
       } else {
         alert("Something went wrong. Please try again.")
@@ -115,21 +135,27 @@ export default function FirstTimerPage() {
   }
 
   const toggleService = (service: string) => {
-    setServicesAttended(prev =>
-      prev.includes(service) ? prev.filter(s => s !== service) : [...prev, service]
-    )
+    const nextValue = servicesAttended.includes(service)
+      ? servicesAttended.filter((s) => s !== service)
+      : [...servicesAttended, service]
+
+    setValue("servicesAttended", nextValue, { shouldValidate: true, shouldDirty: true })
   }
 
   const toggleDepartment = (dept: string) => {
-    setDepartmentsInterest(prev =>
-      prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept]
-    )
+    const nextValue = departmentsInterest.includes(dept)
+      ? departmentsInterest.filter((d) => d !== dept)
+      : [...departmentsInterest, dept]
+
+    setValue("departmentsInterest", nextValue, { shouldValidate: true, shouldDirty: true })
   }
 
   const togglePreference = (pref: string) => {
-    setUpdatePreferences(prev =>
-      prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]
-    )
+    const nextValue = updatePreferences.includes(pref)
+      ? updatePreferences.filter((p) => p !== pref)
+      : [...updatePreferences, pref]
+
+    setValue("updatePreferences", nextValue, { shouldValidate: true, shouldDirty: true })
   }
 
   if (submitSuccess) {
@@ -172,6 +198,7 @@ export default function FirstTimerPage() {
                           id="fullName"
                           {...register("fullName")}
                           className="mt-1"
+                          autoComplete="name"
                           placeholder="Enter your full name"
                         />
                         {errors.fullName && (
@@ -186,6 +213,8 @@ export default function FirstTimerPage() {
                         <Input
                           id="phoneNumber"
                           {...register("phoneNumber")}
+                          inputMode="tel"
+                          autoComplete="tel"
                           className="mt-1"
                           placeholder="+234 XXX XXX XXXX"
                         />
@@ -200,6 +229,7 @@ export default function FirstTimerPage() {
                           id="email"
                           type="email"
                           {...register("email")}
+                          autoComplete="email"
                           className="mt-1"
                           placeholder="your.email@example.com"
                         />
@@ -252,7 +282,12 @@ export default function FirstTimerPage() {
                               type="radio"
                               id="firstTimeYes"
                               checked={isFirstTime}
-                              onChange={() => setIsFirstTime(true)}
+                              onChange={() =>
+                                setValue("isFirstTime", true, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                })
+                              }
                               className="mr-2"
                             />
                             <Label htmlFor="firstTimeYes" className="font-normal cursor-pointer">
@@ -264,7 +299,12 @@ export default function FirstTimerPage() {
                               type="radio"
                               id="firstTimeNo"
                               checked={!isFirstTime}
-                              onChange={() => setIsFirstTime(false)}
+                              onChange={() =>
+                                setValue("isFirstTime", false, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                })
+                              }
                               className="mr-2"
                             />
                             <Label htmlFor="firstTimeNo" className="font-normal cursor-pointer">
@@ -285,6 +325,11 @@ export default function FirstTimerPage() {
                             className="mt-1"
                             placeholder="e.g., 3 months, 1 year"
                           />
+                          {errors.attendingDuration && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.attendingDuration.message}
+                            </p>
+                          )}
                         </div>
                       )}
 
@@ -312,6 +357,11 @@ export default function FirstTimerPage() {
                             <Input placeholder="Other (please specify)" className="max-w-md" />
                           </div>
                         </div>
+                        {errors.servicesAttended && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.servicesAttended.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -355,7 +405,12 @@ export default function FirstTimerPage() {
                               type="radio"
                               id="counselingYes"
                               checked={needsCounseling}
-                              onChange={() => setNeedsCounseling(true)}
+                              onChange={() =>
+                                setValue("needsCounseling", true, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                })
+                              }
                               className="mr-2"
                             />
                             <Label htmlFor="counselingYes" className="font-normal cursor-pointer">
@@ -367,7 +422,12 @@ export default function FirstTimerPage() {
                               type="radio"
                               id="counselingNo"
                               checked={!needsCounseling}
-                              onChange={() => setNeedsCounseling(false)}
+                              onChange={() =>
+                                setValue("needsCounseling", false, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                })
+                              }
                               className="mr-2"
                             />
                             <Label htmlFor="counselingNo" className="font-normal cursor-pointer">
@@ -388,6 +448,9 @@ export default function FirstTimerPage() {
                           rows={4}
                           placeholder="Share your prayer request..."
                         />
+                        {errors.prayerRequest && (
+                          <p className="text-red-500 text-sm mt-1">{errors.prayerRequest.message}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -419,6 +482,11 @@ export default function FirstTimerPage() {
                             </div>
                           ))}
                         </div>
+                        {errors.updatePreferences && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.updatePreferences.message}
+                          </p>
+                        )}
                       </div>
 
                       <div className="bg-blue-50 p-4 rounded-lg">

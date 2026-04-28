@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	distDir: ".next-build",
 	images: {
 		domains: ["localhost"],
 		remotePatterns: [
@@ -8,9 +9,6 @@ const nextConfig = {
 				hostname: "**",
 			},
 		],
-	},
-	paths: {
-		"@/*": ["./*"],
 	},
 	async headers() {
 		return [

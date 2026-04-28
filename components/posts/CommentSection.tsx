@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { useSession } from "next-auth/react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { addComment, deleteComment } from "@/app/actions"
 import { formatDate } from "@/lib/utils"
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Assuming these exist or will use simple fallback
@@ -25,21 +25,17 @@ interface Comment {
 interface CommentSectionProps {
   postId: string
   initialComments: Comment[]
+  commentsEnabled?: boolean
   currentUser?: {
     id: string
     role?: string
   } | null
 }
 
-export function CommentSection({ postId, initialComments, currentUser }: CommentSectionProps) {
-  const [comments, setComments] = useState(initialComments) // We'll rely on page refresh for now, or optimistic?
+export function CommentSection({ postId, initialComments, commentsEnabled = true, currentUser }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
-  // Note: For real-time updates without refresh, we'd need more complex state management
-  // or use router.refresh() after action.
-  // Ideally, valid actions revalidatePath which re-renders the server component.
-  // But since this is a client component, we might not see the update immediately unless we optimistic update.
+  const router = useRouter()
   
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,32 +45,7 @@ export function CommentSection({ postId, initialComments, currentUser }: Comment
     try {
       await addComment(postId, newComment)
       setNewComment("")
-      // For now, we rely on revalidatePath in the action to update the page data.
-      // But since this is a client component taking initialComments, it won't see the new comment unless the parent re-renders.
-      // So we should probably do a simple optimistic update or router.refresh()
-      
-      // Let's assume revalidatePath works and the parent component (Page) re-renders, 
-      // but client components don't always reset state.
-      // It's better to accept 'comments' as prop and rely on parent re-rendering.
-      // But for better UX, let's just create a temporary object.
-      
-      /* 
-      const tempComment = {
-        id: "temp-" + Date.now(),
-        content: newComment,
-        createdAt: new Date(),
-        author: {
-           id: currentUser?.id || "",
-           name: "You", // We might not have full name
-           image: null
-        }
-      } 
-      setComments([...comments, tempComment])
-      */
-     
-     // Actually, nextjs actions with revalidatePath usually update the UI if using useFormState or similar.
-     // Here we are just calling the function.
-     
+      router.refresh()
     } catch (error) {
       console.error("Failed to add comment:", error)
       alert("Failed to post comment. Please try again.")
@@ -88,8 +59,7 @@ export function CommentSection({ postId, initialComments, currentUser }: Comment
      
      try {
        await deleteComment(commentId)
-       // Optimistic remove
-       // setComments(comments.filter(c => c.id !== commentId))
+       router.refresh()
      } catch (error) {
        console.error("Failed to delete comment:", error)
        alert("Failed to delete comment.")
@@ -145,7 +115,7 @@ export function CommentSection({ postId, initialComments, currentUser }: Comment
       </div>
 
       {/* Add Comment Form */}
-      {currentUser ? (
+      {commentsEnabled ? (currentUser ? (
         <form onSubmit={handleAddComment} className="mt-8 space-y-4">
           <div>
             <label htmlFor="comment" className="sr-only">Add a comment</label>
@@ -175,6 +145,10 @@ export function CommentSection({ postId, initialComments, currentUser }: Comment
       ) : (
         <div className="mt-8 p-4 bg-gray-50 rounded-lg text-center border text-black">
           <p className="text-gray-600">Please <a href="/auth/signin" className="text-blue-600 hover:underline">sign in</a> to leave a comment.</p>
+        </div>
+      )) : (
+        <div className="mt-8 p-4 bg-amber-50 rounded-lg text-center border border-amber-200 text-amber-900">
+          Comments are disabled for this post.
         </div>
       )}
     </div>
