@@ -58,17 +58,17 @@ async function main() {
 	console.log("Event Admin created: events@wgministries.com");
 
 	// 4. Post Admin
-	await prisma.user.upsert({
-		where: { email: "posts@wgministries.com" },
-		update: { role: "POST_ADMIN", password: password },
-		create: {
-			email: "posts@wgministries.com",
-			name: "Posts Admin",
-			password: password,
-			role: "POST_ADMIN",
-		},
-	});
-	console.log("Post Admin created: posts@wgministries.com");
+	// await prisma.user.upsert({
+	// 	where: { email: "posts@wgministries.com" },
+	// 	update: { role: "POST_ADMIN", password: password },
+	// 	create: {
+	// 		email: "posts@wgministries.com",
+	// 		name: "Posts Admin",
+	// 		password: password,
+	// 		role: "POST_ADMIN",
+	// 	},
+	// });
+	// console.log("Post Admin created: posts@wgministries.com");
 
 	// const passwords = await hash("2026@Ekeze", 12)
 	// await prisma.user.upsert({
@@ -83,18 +83,18 @@ async function main() {
 	// })
 	// console.log("Post Admin created: ekezefaith2003@gmail.com")
 
-	const passwords = await hash("2026@Newton", 12);
-	await prisma.user.upsert({
-		where: { email: "mercynewton053@gmail.com" },
-		update: { role: "POST_ADMIN", password: passwords },
-		create: {
-			email: "mercynewton053@gmail.com",
-			name: "Posts Admin",
-			password: passwords,
-			role: "POST_ADMIN",
-		},
-	});
-	console.log("Post Admin created: mercynewton053@gmail.com");
+	// const passwords = await hash("2026@Newton", 12);
+	// await prisma.user.upsert({
+	// 	where: { email: "mercynewton053@gmail.com" },
+	// 	update: { role: "POST_ADMIN", password: passwords },
+	// 	create: {
+	// 		email: "mercynewton053@gmail.com",
+	// 		name: "Posts Admin",
+	// 		password: passwords,
+	// 		role: "POST_ADMIN",
+	// 	},
+	// });
+	// console.log("Post Admin created: mercynewton053@gmail.com");
 
 	// const passwords = await hash("2026@Ajayi", 12);
 	// await prisma.user.upsert({
@@ -109,17 +109,30 @@ async function main() {
 	// });
 	// console.log("Post Admin created: ajayiosetohamen@gmail.com");
 
+	// await prisma.user.upsert({
+	// 	where: { email: "okpuzorexcel900@gmail.com" },
+	// 	update: { role: "ADMIN", password: password },
+	// 	create: {
+	// 		email: "okpuzorexcel900@gmail.com",
+	// 		name: "Excel Admin",
+	// 		password: password,
+	// 		role: "ADMIN",
+	// 	},
+	// });
+	// console.log("Post Admin created: okpuzorexcel900@gmail.com");
+
+	const passwordss = await hash("2026@Solution", 12);
 	await prisma.user.upsert({
-		where: { email: "okpuzorexcel900@gmail.com" },
-		update: { role: "ADMIN", password: password },
+		where: { email: "solutionconceptimage@gmail.com" },
+		update: { role: "ADMIN", password: passwordss },
 		create: {
-			email: "okpuzorexcel900@gmail.com",
-			name: "Excel Admin",
-			password: password,
+			email: "solutionconceptimage@gmail.com",
+			name: "Solution Concept Admin",
+			password: passwordss,
 			role: "ADMIN",
 		},
 	});
-	console.log("Post Admin created: okpuzorexcel900@gmail.com");
+	console.log("Post Admin created: solutionconceptimage@gmail.com");
 
 	await prisma.user.upsert({
 		where: { email: "humblefamouxconceptz@gmail.com" },

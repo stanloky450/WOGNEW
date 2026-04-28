@@ -9,10 +9,10 @@ interface RegistrationEmailInput {
 const CHURCH_CONTACT = {
   phone: "+234 7048345555",
   email: "info@wgministries.org",
-  address: "Word of Grace Ministries, Agbor",
+  address: "Word of Grace Ministries, No 64 Old Lagos-Asaba Road, Agbor, Delta State. Nigeria",
   serviceDays: [
     "Sunday Leadership Training - 8:00 AM",
-    "Sunday Celebration Service - 9:20 AM",
+    "Sunday Celebration Service - 9:00 AM",
     "Wednesday Word Alive (Bible Study) - 5:00 PM",
     // "Friday Prayer Meeting - 5:00 PM",
   ],
