@@ -35,15 +35,23 @@ export async function POST(request: Request) {
       },
     })
 
+    let emailStatus: "not_requested" | "sent" | "smtp_not_configured" | "send_failed" = "not_requested"
+
     if (memberBio.email) {
-      void sendRegistrationThankYouEmail({
+      const emailResult = await sendRegistrationThankYouEmail({
         to: memberBio.email,
         fullName: memberBio.fullName,
         kind: "member-bio",
       })
+
+      emailStatus = emailResult.sent
+        ? "sent"
+        : emailResult.reason === "SMTP_NOT_CONFIGURED"
+          ? "smtp_not_configured"
+          : "send_failed"
     }
 
-    return NextResponse.json({ success: true, data: memberBio }, { status: 201 })
+    return NextResponse.json({ success: true, data: memberBio, emailStatus }, { status: 201 })
   } catch (error) {
     console.error("Error creating member bio:", error)
     return NextResponse.json(

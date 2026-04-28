@@ -24,15 +24,23 @@ export async function POST(request: Request) {
       },
     })
 
+    let emailStatus: "not_requested" | "sent" | "smtp_not_configured" | "send_failed" = "not_requested"
+
     if (firstTimer.email) {
-      void sendRegistrationThankYouEmail({
+      const emailResult = await sendRegistrationThankYouEmail({
         to: firstTimer.email,
         fullName: firstTimer.fullName,
         kind: "first-timer",
       })
+
+      emailStatus = emailResult.sent
+        ? "sent"
+        : emailResult.reason === "SMTP_NOT_CONFIGURED"
+          ? "smtp_not_configured"
+          : "send_failed"
     }
 
-    return NextResponse.json({ success: true, data: firstTimer }, { status: 201 })
+    return NextResponse.json({ success: true, data: firstTimer, emailStatus }, { status: 201 })
   } catch (error) {
     console.error("Error creating first timer entry:", error)
     return NextResponse.json(

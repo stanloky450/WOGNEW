@@ -24,9 +24,9 @@ function buildHtmlMessage(fullName: string, kind: RegistrationKind) {
       ? "Thank you for completing our First Timer registration."
       : "Thank you for submitting your Membership Bio registration."
   const siteUrl =
-		process.env.NEXTAUTH_URL ||
-		"http://localhost:3000" ||
-		"https://wgministries.org";
+    process.env.NEXTAUTH_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://www.wgministries.org"
   const logoUrl = `${siteUrl.replace(/\/$/, "")}/images/WOGLOGO.png`
 
   return `
@@ -74,8 +74,13 @@ export async function sendRegistrationThankYouEmail(input: RegistrationEmailInpu
   const user = process.env.SMTP_USER
   const pass = process.env.SMTP_PASS
   const from = process.env.SMTP_FROM || user
+  const secure =
+    process.env.SMTP_SECURE === "true" ||
+    process.env.SMTP_SECURE === "1" ||
+    port === 465
 
   if (!host || !user || !pass || !from) {
+    console.warn("Registration email skipped: SMTP is not fully configured.")
     return { sent: false, reason: "SMTP_NOT_CONFIGURED" as const }
   }
 
@@ -84,10 +89,16 @@ export async function sendRegistrationThankYouEmail(input: RegistrationEmailInpu
     const transporter = nodemailer.createTransport({
       host,
       port,
-      secure: port === 465,
+      secure,
       auth: {
         user,
         pass,
+      },
+      connectionTimeout: 20_000,
+      greetingTimeout: 20_000,
+      socketTimeout: 30_000,
+      tls: {
+        servername: host,
       },
     })
 
@@ -98,6 +109,7 @@ export async function sendRegistrationThankYouEmail(input: RegistrationEmailInpu
       html: buildHtmlMessage(input.fullName, input.kind),
     })
 
+    console.log(`Registration thank-you email sent to ${input.to} for ${input.kind}.`)
     return { sent: true as const }
   } catch (error) {
     console.error("Failed to send registration thank-you email:", error)
