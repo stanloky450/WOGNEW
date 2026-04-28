@@ -23,7 +23,10 @@ function buildHtmlMessage(fullName: string, kind: RegistrationKind) {
     kind === "first-timer"
       ? "Thank you for completing our First Timer registration."
       : "Thank you for submitting your Membership Bio registration."
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000 || ";
+  const siteUrl =
+		process.env.NEXTAUTH_URL ||
+		"http://localhost:3000" ||
+		"https://wgministries.org";
   const logoUrl = `${siteUrl.replace(/\/$/, "")}/images/WOGLOGO.png`
 
   return `
