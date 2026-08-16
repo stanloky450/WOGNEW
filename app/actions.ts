@@ -125,3 +125,44 @@ export async function deleteComment(commentId: string) {
 
   revalidatePath(`/posts/${comment.postId}`)
 }
+
+export async function editComment(commentId: string, content: string) {
+  const session = await getServerSession(authOptions)
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to edit a comment")
+  }
+
+  const user = await db.user.findUnique({
+    where: { email: session.user.email },
+  })
+
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  if (!content.trim()) {
+    throw new Error("Comment cannot be empty")
+  }
+
+  const comment = await db.comment.findUnique({
+    where: { id: commentId },
+  })
+
+  if (!comment) {
+    throw new Error("Comment not found")
+  }
+
+  if (comment.authorId !== user.id) {
+    throw new Error("Unauthorized to edit this comment")
+  }
+
+  await db.comment.update({
+    where: { id: commentId },
+    data: {
+      content: content.trim(),
+    },
+  })
+
+  revalidatePath(`/posts/${comment.postId}`)
+}

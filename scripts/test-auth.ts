@@ -29,11 +29,11 @@ async function main() {
   }
   console.log(`   - Found user: ${user.email}`)
   console.log(`   - Role: ${user.role}`)
-  console.log(`   - Hashed Password: ${user.password.substring(0, 10)}...`)
+  console.log(`   - Hashed Password: ${(user.password || "").substring(0, 10)}...`)
 
   console.log("3. Testing Password Verification...")
   const testPassword = "password" // Assuming this is the seed password
-  const isValid = await compare(testPassword, user.password)
+  const isValid = await compare(testPassword, user.password || "")
 
   if (isValid) {
     console.log("   - Password 'password' is VALID.")

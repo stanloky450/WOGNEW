@@ -20,7 +20,7 @@ async function main() {
   console.log("User found:", user.role)
   console.log("stored hash:", user.password)
 
-  const isValid = await compare(password, user.password)
+  const isValid = await compare(password, user.password || "")
   console.log(`Password '${password}' valid?`, isValid)
 }
 

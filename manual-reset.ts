@@ -23,7 +23,7 @@ async function main() {
   console.log("User updated in DB.")
 
   // Verify immediately
-  const valid = await compare(plainPassword, updatedUser.password)
+  const valid = await compare(plainPassword, updatedUser.password || "")
   console.log(`Verification check: Password valid? ${valid}`)
   
   if (valid) {

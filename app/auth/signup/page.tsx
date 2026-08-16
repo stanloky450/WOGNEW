@@ -1,57 +1,61 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-// import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter()
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get("registered") === "true") {
-        setSuccess("Registration successful! Please sign in with your credentials.")
-      }
-    }
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setSuccess("")
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long")
+      return
+    }
+
     setLoading(true)
 
     try {
-      console.log("Submitting signin request...", { email })
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
       })
 
-      if (result?.error) {
-        console.error("Signin error:", result.error)
-        setError(result.error) // Display the actual error from the server
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "An error occurred during signup")
       } else {
-        console.log("Signin success. Redirecting to dashboard...")
-        router.push("/dashboard")
-        router.refresh()
+        setSuccess("Account created successfully! Redirecting to sign in...")
+        setTimeout(() => {
+          router.push("/auth/signin?registered=true")
+        }, 2000)
       }
     } catch (error) {
-      console.error("Signin exception:", error)
-      setError("An error occurred. Please try again.")
+      console.error("Signup client error:", error)
+      setError("Failed to register. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -63,10 +67,10 @@ export default function SignInPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold text-primary">
-              Dashboard Login
+              Create Account
             </CardTitle>
             <CardDescription>
-              Sign in to access the WOG Ministries dashboard
+              Sign up to access WOG Ministries features
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -83,12 +87,26 @@ export default function SignInPage() {
               )}
 
               <div>
+                <Label htmlFor="name">Full Name (Optional)</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  className="mt-1"
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
                   required
                   className="mt-1"
                   disabled={loading}
@@ -108,8 +126,21 @@ export default function SignInPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Signing in..." : "Sign In"}
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="mt-1"
+                  disabled={loading}
+                />
+              </div>
+
+              <Button type="submit" className="w-full mt-2" disabled={loading}>
+                {loading ? "Registering..." : "Sign Up"}
               </Button>
             </form>
 
@@ -137,21 +168,14 @@ export default function SignInPage() {
                   <path d="M12,4.8c1.41,0 2.68,0.49 3.68,1.44l2.76,-2.76C16.77,2.02 14.59,1.1 12,1.1C7.49,1.1 3.51,3.64 1.87,7.02l3.42,2.65c0.95,-2.85 3.59,-4.87 6.71,-4.87z" fill="#EA4335" />
                 </g>
               </svg>
-              Sign In with Google
+              Sign Up with Google
             </Button>
 
-            <div className="mt-6 text-center text-sm flex flex-col gap-2">
-              <div>
-                <span className="text-gray-600">Don't have an account? </span>
-                <Link href="/auth/signup" className="text-primary hover:underline font-semibold">
-                  Sign Up
-                </Link>
-              </div>
-              <div>
-                <Link href="/" className="text-sm text-primary hover:underline">
-                  Back to Home
-                </Link>
-              </div>
+            <div className="mt-6 text-center text-sm">
+              <span className="text-gray-600">Already have an account? </span>
+              <Link href="/auth/signin" className="text-primary hover:underline font-semibold">
+                Sign In
+              </Link>
             </div>
           </CardContent>
         </Card>
